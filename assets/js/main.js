@@ -9,9 +9,18 @@ let elementsSize;
 const playerPosition = {
     x: undefined,
     y: undefined,
-    playerCol: undefined,
-    playerRow: undefined,
-}
+    col: undefined,
+    row: undefined,
+};
+const giftPosition = {
+    x: undefined,
+    y: undefined,
+    col: undefined,
+    row: undefined,
+};
+let bombsPosition = [];
+
+let collision = false;
 
 window.addEventListener("load", setCanvasSize);
 window.addEventListener("resize", setCanvasSize);
@@ -42,6 +51,8 @@ function startGame() {
     const mapRows = map.trim().split("\n")
     const mapRowsCol = mapRows.map(row => row.trim().split(""));
 
+    bombsPosition = [];
+
     /* Print each element of the map with the corresponding emoji */
     mapRowsCol.forEach((row, rowIndex) => {
         row.forEach((col, colIndex) => {
@@ -50,15 +61,24 @@ function startGame() {
             const posY = elementsSize * (rowIndex + 1);
 
             //I associate the column and row index (plus one), instead of a fixed position. So I can calculate the initial position of the player by multiplying this index by the variable "elementsSize"
-            if (playerPosition.playerCol === undefined && playerPosition.playerRow === undefined && col == "O") {
-                playerPosition.playerCol = colIndex;
-                playerPosition.playerRow = rowIndex + 1;
+            if (playerPosition.col === undefined && playerPosition.row === undefined && col == "O") {
+                playerPosition.col = colIndex;
+                playerPosition.row = rowIndex + 1;
+            } else if (col === "I") {
+                giftPosition.col = colIndex;
+                giftPosition.row = rowIndex + 1;
+            } else if (col === "X") {
+                bombsPosition.push({
+                    col: colIndex,
+                    row: rowIndex + 1,
+                });
             }
 
             game.fillText(emoji, posX, posY);
         });
     });
     movePlayer();
+    console.log(bombsPosition);
 }
 
 /* Movement functions */
@@ -75,41 +95,60 @@ buttons[3].addEventListener("click", moveDown);
 
 function movePlayer() {
     //The reason for doing it this way, instead of associating the x and y position of the player to a fixed value, is that in this way we can make the size of the skull (player avatar) also adjust when resizing the screen
-    playerPosition.x = elementsSize * playerPosition.playerCol;
-    playerPosition.y = elementsSize * playerPosition.playerRow;
-    game.fillText(emojis["PLAYER"], playerPosition.x, playerPosition.y);
-    console.log(playerPosition);
-}
+    playerPosition.x = elementsSize * playerPosition.col;
+    playerPosition.y = elementsSize * playerPosition.row;
 
+    game.fillText(emojis["PLAYER"], playerPosition.x, playerPosition.y);
+
+    collision = bombsPosition.find((e) => {
+        return e.col === playerPosition.col && e.row === playerPosition.row;
+    })
+
+    win();
+    lose();
+}
+;
 function moveUp() {
-    console.log("arriba");
-    if (playerPosition.playerRow > 1) {
-        playerPosition.playerRow -= 1;
+    if (playerPosition.row > 1) {
+        playerPosition.row -= 1;
         movePlayer();
         setCanvasSize();
     }
-}
+};
 function moveLeft() {
-    console.log("izquierda");
-    if (playerPosition.playerCol >= 1) {
-        playerPosition.playerCol -= 1;
+    if (playerPosition.col >= 1) {
+        playerPosition.col -= 1;
         movePlayer();
         setCanvasSize();
     }
 }
 function moveRight() {
-    console.log("derecha");
-    if (playerPosition.playerCol < 9) {
-        playerPosition.playerCol += 1;
+    if (playerPosition.col < 9) {
+        playerPosition.col += 1;
         movePlayer();
         setCanvasSize();
     }
 }
 function moveDown() {
-    console.log("abajo");
-    if (playerPosition.playerRow <= 9) {
-        playerPosition.playerRow += 1;
+    if (playerPosition.row <= 9) {
+        playerPosition.row += 1;
         movePlayer();
         setCanvasSize();
+    }
+};
+
+function win() {
+    if (playerPosition.col === giftPosition.col && playerPosition.row === giftPosition.row) {
+        game.clearRect(0, 0, canvasSize, canvasSize);
+
+        game.textAlign = "center";
+        game.fillText(emojis["WIN"], canvasSize / 2, (canvasSize / 2) - elementsSize);
+        game.fillText("You win!", canvasSize / 2, (canvasSize / 2 + elementsSize));
+    }
+}
+
+function lose() {
+    if (collision) {
+        console.log("COLLISION!");
     }
 }
