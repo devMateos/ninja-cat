@@ -3,8 +3,12 @@ const game = canvas.getContext("2d");
 const buttonsDiv = document.querySelector(".btns");
 const buttons = buttonsDiv.querySelectorAll("*");
 
+const spanLives = document.querySelector("#lives");
+
 let canvasSize;
 let elementsSize;
+let level = 0;
+let lives = 3;
 
 const playerPosition = {
     x: undefined,
@@ -46,8 +50,17 @@ function startGame() {
     /* Insert elements with emojis */
     game.font = `${elementsSize}px Verdana`;
 
+    showLives();
+
+    const map = maps[level];
+
+    /* Check if all levels have been passed */
+    if (level >= maps.length) {
+        winGame();
+        return;
+    }
+
     /* Transform each map into a two-dimensional array */
-    const map = maps[0];
     const mapRows = map.trim().split("\n")
     const mapRowsCol = mapRows.map(row => row.trim().split(""));
 
@@ -73,12 +86,10 @@ function startGame() {
                     row: rowIndex + 1,
                 });
             }
-
             game.fillText(emoji, posX, posY);
         });
     });
     movePlayer();
-    console.log(bombsPosition);
 }
 
 /* Movement functions */
@@ -104,7 +115,7 @@ function movePlayer() {
         return e.col === playerPosition.col && e.row === playerPosition.row;
     })
 
-    win();
+    winLevel();
     lose();
 }
 ;
@@ -137,18 +148,42 @@ function moveDown() {
     }
 };
 
-function win() {
+/* win functions */
+function winLevel() {
     if (playerPosition.col === giftPosition.col && playerPosition.row === giftPosition.row) {
         game.clearRect(0, 0, canvasSize, canvasSize);
-
-        game.textAlign = "center";
-        game.fillText(emojis["WIN"], canvasSize / 2, (canvasSize / 2) - elementsSize);
-        game.fillText("You win!", canvasSize / 2, (canvasSize / 2 + elementsSize));
+        level++;
+        startGame();
     }
 }
+function winGame() {
+    game.textAlign = "center";
+    game.fillText(emojis["WIN"], canvasSize / 2, (canvasSize / 2) - elementsSize);
+    game.fillText("You win!", canvasSize / 2, (canvasSize / 2 + elementsSize));
+}
 
+/* lose functions */
 function lose() {
     if (collision) {
-        console.log("COLLISION!");
+        playerPosition.col = undefined;
+        playerPosition.row = undefined;
+        if (lives > 1) {
+            lives--;
+            startGame();
+        } else {
+            level = 0;
+            lives = 3;
+            startGame();
+        }
+        console.log(lives);
     }
+};
+
+function showLives() {
+    let heartsArray = [];
+    for (let l = lives; l > 0; l--) {
+        heartsArray.push(emojis["LIFE"]);
+    };
+    const showHearts = heartsArray.join(" ");
+    spanLives.innerText = showHearts;
 }
