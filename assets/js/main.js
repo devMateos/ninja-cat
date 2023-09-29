@@ -4,11 +4,21 @@ const buttonsDiv = document.querySelector(".btns");
 const buttons = buttonsDiv.querySelectorAll("*");
 
 const spanLives = document.querySelector("#lives");
+const spanTime = document.querySelector("#time");
+const spanScore = document.querySelector("#score");
 
 let canvasSize;
 let elementsSize;
+
 let level = 0;
 let lives = 3;
+
+let totalTime;
+let timeInterval;
+
+let score = 0;
+let lastScore;
+let bestScore;
 
 const playerPosition = {
     x: undefined,
@@ -28,6 +38,7 @@ let collision = false;
 
 window.addEventListener("load", setCanvasSize);
 window.addEventListener("resize", setCanvasSize);
+saveScore();
 
 /* ----- FUNCTIONS ----- */
 function setCanvasSize() {
@@ -58,6 +69,11 @@ function startGame() {
     if (level >= maps.length) {
         winGame();
         return;
+    }
+
+    /* time */
+    if (!timeInterval) {
+        timeInterval = setInterval(showTime, 100);
     }
 
     /* Transform each map into a two-dimensional array */
@@ -118,14 +134,14 @@ function movePlayer() {
     winLevel();
     lose();
 }
-;
+
 function moveUp() {
     if (playerPosition.row > 1) {
         playerPosition.row -= 1;
         movePlayer();
         setCanvasSize();
     }
-};
+}
 function moveLeft() {
     if (playerPosition.col >= 1) {
         playerPosition.col -= 1;
@@ -146,7 +162,7 @@ function moveDown() {
         movePlayer();
         setCanvasSize();
     }
-};
+}
 
 /* win functions */
 function winLevel() {
@@ -157,9 +173,14 @@ function winLevel() {
     }
 }
 function winGame() {
+    clearInterval(timeInterval);
+    score = (lives * 200) + totalTime;
     game.textAlign = "center";
     game.fillText(emojis["WIN"], canvasSize / 2, (canvasSize / 2) - elementsSize);
     game.fillText("You win!", canvasSize / 2, (canvasSize / 2 + elementsSize));
+    game.font = `${elementsSize / 2}px Verdana`;
+    game.fillText(`Score: ${score}`, canvasSize / 2, ((canvasSize / 2) + (elementsSize * 2)));
+    saveScore();
 }
 
 /* lose functions */
@@ -171,13 +192,13 @@ function lose() {
             lives--;
             startGame();
         } else {
+            totalTime = null;
             level = 0;
             lives = 3;
             startGame();
         }
-        console.log(lives);
     }
-};
+}
 
 function showLives() {
     let heartsArray = [];
@@ -186,4 +207,49 @@ function showLives() {
     };
     const showHearts = heartsArray.join(" ");
     spanLives.innerText = showHearts;
+}
+
+/* Show time */
+const calcSeconds = () => {
+    return Math.floor(totalTime / 100);
+}
+function showTime() {
+    if (!totalTime) {
+        totalTime = maps.length * 500;
+    } else {
+        if (totalTime > 10) {
+            totalTime -= 10;
+        } else {
+            game.clearRect(0, 0, canvasSize, canvasSize);
+            playerPosition.col = undefined;
+            playerPosition.row = undefined;
+            totalTime = null;
+            level = 0;
+            lives = 3;
+            startGame();
+        }
+    }
+
+    spanTime.innerText = `${calcSeconds()}:${totalTime - (calcSeconds() * 100)}`;
+    /* spanTime.innerText = totalTime; */
+}
+
+/* save Score */
+function saveScore() {
+    lastScore = localStorage.getItem("last");
+    if (!lastScore) {
+        localStorage.setItem("last", score);
+    } else if (lastScore && score > 0) {
+        localStorage.setItem("last", score);
+    }
+
+    bestScore = localStorage.getItem("best");
+    if (!bestScore) {
+        localStorage.setItem("best", 0);
+    } else if (score > bestScore) {
+        localStorage.setItem("best", score);
+    }
+    spanScore.innerText = `Last score: ${lastScore}
+    Best score: ${bestScore}`;
+    console.log(localStorage);
 }
