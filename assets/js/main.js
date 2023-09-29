@@ -59,7 +59,7 @@ function setCanvasSize() {
 
 function startGame() {
     /* Insert elements with emojis */
-    game.font = `${elementsSize}px Verdana`;
+    game.font = `${elementsSize - 2}px Verdana`;
 
     showLives();
 
