@@ -44,9 +44,9 @@ saveScore();
 function setCanvasSize() {
     /* Responsive canvas */
     if (window.innerHeight > window.innerWidth) {
-        canvasSize = window.innerWidth * 0.7;
+        canvasSize = window.innerWidth * 0.8;
     } else if (window.innerHeight < window.innerWidth) {
-        canvasSize = window.innerHeight * 0.7;
+        canvasSize = window.innerHeight * 0.8;
     }
     canvas.setAttribute("width", canvasSize);
     canvas.setAttribute("height", canvasSize);
