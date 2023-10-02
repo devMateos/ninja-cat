@@ -44,9 +44,9 @@ saveScore();
 function setCanvasSize() {
     /* Responsive canvas */
     if (window.innerHeight > window.innerWidth) {
-        canvasSize = window.innerWidth * 0.8;
+        canvasSize = window.innerWidth * 0.7;
     } else if (window.innerHeight < window.innerWidth) {
-        canvasSize = window.innerHeight * 0.8;
+        canvasSize = window.innerHeight * 0.7;
     }
     canvas.setAttribute("width", canvasSize);
     canvas.setAttribute("height", canvasSize);
@@ -90,7 +90,7 @@ function startGame() {
             const posY = elementsSize * (rowIndex + 1);
 
             //I associate the column and row index (plus one), instead of a fixed position. So I can calculate the initial position of the player by multiplying this index by the variable "elementsSize"
-            if (playerPosition.col === undefined && playerPosition.row === undefined && col == "O") {
+            if (col == "O" && playerPosition.col === undefined && playerPosition.row === undefined) {
                 playerPosition.col = colIndex;
                 playerPosition.row = rowIndex + 1;
             } else if (col === "I") {
