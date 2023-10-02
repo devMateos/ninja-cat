@@ -251,5 +251,4 @@ function saveScore() {
     }
     spanScore.innerText = `Last score: ${lastScore}
     Best score: ${bestScore}`;
-    console.log(localStorage);
 }
