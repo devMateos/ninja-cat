@@ -215,7 +215,7 @@ const calcSeconds = () => {
 }
 function showTime() {
     if (!totalTime) {
-        totalTime = maps.length * 500;
+        totalTime = maps.length * 750;
     } else {
         if (totalTime > 10) {
             totalTime -= 10;
